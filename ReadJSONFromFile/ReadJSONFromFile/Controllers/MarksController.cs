@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,19 +22,21 @@ namespace ReadJSONFromFile.Controllers
         }        
        
         [HttpGet]
-        public IActionResult GetCalculatedMarks(string subjectName)
+        public IActionResult GetCalculatedMarks()
         {
             //Fetch the JSON string from URL.
             string json = (new WebClient()).DownloadString("https://raw.githubusercontent.com/tester1-1/testdata/main/data.json");
 
             //Deserialize the object
-            var markList = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>(json);
+            var markList = JsonConvert.DeserializeObject<IDictionary<string,Section>>(json);
+
 
             //Find min and max value
             MarkCalculation result = new MarkCalculation()
             {
-                Min = markList.SelectMany(x => x.Value).Where(y => y.Key == subjectName).Min(z => z.Value),
-                Max = markList.SelectMany(x => x.Value).Where(y => y.Key == subjectName).Max(z => z.Value)
+               Min = markList.Select(x => x.Value.Math1).Min(),
+               Max = markList.Select(x => x.Value.Math1).Max(),
+               Avg = markList.Select(x => x.Value.Math1).Average(),
             };
 
             //Serialize and Return the JSON string.
